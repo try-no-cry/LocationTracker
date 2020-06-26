@@ -60,7 +60,7 @@ const vehicleObj={
                   currentLocation:{latitude:"4",longitude:"5"}
                 }
 
-insertVehicle(vehicleObj);
+// insertVehicle(vehicleObj);
 
 
 
@@ -90,6 +90,7 @@ async function updateVehicleLocation(id,obj)
          return new Error("Not Found!");
 
     vehicle.locations.push(obj);
+    
     vehicle.currentLocation=obj;
 
     return await vehicle.save()
@@ -104,18 +105,19 @@ app.get('/',(req,res)=>{
 });
 
 //on registering every vehicle will get their id which also happens to be _id in mongodb
-app.put('/api/newLocation/:id',(req,res)=>{
-    const vehicleId=req.params.id;
-    const latitude=req.query.latitude;
-    const longitude=req.query.longitude;
+app.put('/api/newLocation',(req,res)=>{
+     
+    const vehicleId=req.body.id;
+    const latitude=req.body.latitude;
+    const longitude=req.body.longitude;
 
-    if(!latitude || !longitude )
+    if(!latitude || !longitude || !vehicleId)
     {
-          res.status(404).send("No Coordinates recieved!");
+          res.status(404).send("No Coordinates recieved or vehicle not registered!");
           return;
     } 
 
-    const updatingObject={time:Date.UTC.toString, latitude,longitude }
+    const updatingObject={ time:Date.now(),latitude,longitude }
 
     updateVehicleLocation(vehicleId, updatingObject)
         .then((vehicle)=>res.status(200).send(vehicle))
