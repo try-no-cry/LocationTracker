@@ -8,8 +8,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitApiClient {
 
-    private static final String BASE_URL ="https://localhost:3000/" ;
+    private static final String BASE_URL ="http://192.168.43.77:3000" ;
     public static Retrofit retrofit;
+    public static IRetrofit retrofitApiService;
+
+    public static IRetrofit getRetrofitApiService()
+    {
+        if(retrofitApiService==null)
+        {
+            retrofitApiService=retrofit.create(IRetrofit.class);
+        }
+        return retrofitApiService;
+    }
 
     public static Retrofit getClient()
     {

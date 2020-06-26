@@ -12,9 +12,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.locationtracker.Retrofit.IRetrofit;
+import com.example.locationtracker.Retrofit.RetrofitApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.gson.JsonObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -33,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         client = LocationServices.getFusedLocationProviderClient(this);
         button= findViewById(R.id.getLocation);
         showInMap=findViewById(R.id.showMap);
+
+
 
         showInMap.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +100,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private  void updateLocation(JsonObject object)
+    {
+        Toast.makeText(this,object.toString(),Toast.LENGTH_SHORT).show();
+
+        RetrofitApiClient.getClient().create(IRetrofit.class).update_location(object).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if(response.isSuccessful())
+                {
+                    Toast.makeText(MainActivity.this,"Response: "+response.body().toString(),Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(MainActivity.this,t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     private void setLatLong(Object o) {
         TextView textView;
 
@@ -104,6 +135,14 @@ public class MainActivity extends AppCompatActivity {
 
                 latitude= Double.parseDouble(ltd);
                 longitude= Double.parseDouble(longtude);
+
+                JsonObject object=new JsonObject();
+                object.addProperty("id","5ef5c358f65bd03d3823fb37");
+                object.addProperty("latitude",ltd);
+                object.addProperty("longitude",longtude);
+
+                updateLocation(object);
+
 
                 textView.setText("\n"+latitude+", "+longitude);
 
