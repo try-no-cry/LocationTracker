@@ -19,18 +19,22 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.JsonObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
+ 
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 
 public class MainActivity extends AppCompatActivity {
-    Button button,showInMap;
+    Button startSendingCoords,stopSendingCoords,showInMap;
     double latitude=-1;
     double longitude=-1;
+    Timer timer;
 
     private FusedLocationProviderClient client;
     @Override
@@ -39,11 +43,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         requestPermission();
         client = LocationServices.getFusedLocationProviderClient(this);
-        button= findViewById(R.id.getLocation);
+        startSendingCoords= findViewById(R.id.startSendingCoords);
+        stopSendingCoords=findViewById(R.id.stopSendingCoords);
         showInMap=findViewById(R.id.showMap);
 
 
+       stopSendingCoords.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view)
+           {
 
+               timer.cancel();
+
+           }
+       });
+
+        
+        
         showInMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,40 +85,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
+        startSendingCoords.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
                     return;
                 }
-                client.getLastLocation().addOnSuccessListener(MainActivity.this, new OnSuccessListener() {
-
-
+                timer=new Timer();
+                TimerTask minuteTask=new TimerTask() {
                     @Override
-                    public void onSuccess(Object o) {
+                    public void run() {
+                        client.getLastLocation().addOnSuccessListener(MainActivity.this, new OnSuccessListener() {
 
-                        setLatLong(o);
+                            @Override
+                            public void onSuccess(Object o) { setLatLong(o);  }
 
+                        });
 
                     }
-
-//                    @Override
-//                    public void onSuccess(Location location) {
-//                        if (location != null) {
-//                            TextView textView = findViewById(R.id.location);
-//                            textView.setText(location.toString());
-//                        }
-//                    }
-
-
-                });
+                };
+                timer.schedule(minuteTask,0l,1000*60);  //after every one minute
+                
+                
             }
         });
+        
+        
     }
 
     private  void updateLocation(JsonObject object)
     {
-        Toast.makeText(this,object.toString(),Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,object.toString(),Toast.LENGTH_SHORT).show();
 
         RetrofitApiClient.getClient().create(IRetrofit.class).update_location(object).enqueue(new Callback<JsonObject>() {
             @Override
@@ -137,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 longitude= Double.parseDouble(longtude);
 
                 JsonObject object=new JsonObject();
-                object.addProperty("id","5ef5c358f65bd03d3823fb37");
+                object.addProperty("id","5ef7096349cc7e2fbc2db420");
                 object.addProperty("latitude",ltd);
                 object.addProperty("longitude",longtude);
 

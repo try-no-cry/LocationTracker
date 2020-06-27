@@ -9,14 +9,23 @@
         android:id="@+id/location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current GPS Loaction"
+        android:text="Current GPS Location"
         android:textSize="24sp"
         android:textStyle="bold" />
     <Button
-        android:id="@+id/getLocation"
-        android:text="Get location"
+        android:id="@+id/startSendingCoords"
+        android:text="Start Sending Coords "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/stopSendingCoords"
+        android:text="Stop Sending Coords "
+        android:layout_margin="5sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
 
     <Button
         android:id="@+id/showMap"
