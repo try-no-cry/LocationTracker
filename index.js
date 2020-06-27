@@ -51,6 +51,7 @@ async function insertVehicle(vehicle)
 
 
 
+ 
 const vehicleObj={
                   owner:"Abhay",
                   contact:"9892830144",
@@ -96,6 +97,26 @@ async function updateVehicleLocation(id,obj)
     return await vehicle.save()
 }
 
+
+async function getLocationByID(vehicleID)
+{
+
+   try{
+    const location= await Vehicle.findById(vehicleID)
+                                 .select({currentLocation:1});
+
+    devDebug(location.currentLocation);     
+    return location; 
+   } 
+   catch(err) 
+   {
+       return new Error("Couldn't fetch data..");
+   }
+       
+    
+}
+
+ 
 app.get('/',(req,res)=>{
 
     getAllVehicles()
@@ -124,6 +145,40 @@ app.put('/api/newLocation',(req,res)=>{
         .catch(err=>res.status(400).send(err.message));
 
 });
+
+//calls from map devices
+app.post('/api/currentLocation',(req,res)=>{
+    const vehicleID=req.body.id;
+
+
+
+    if(!vehicleID)
+    {
+        res.status(400).send("No Vehicle ID received");
+        return;
+    }
+
+    getLocationByID(vehicleID)
+    .then(location=>res.send(location.currentLocation))
+    .catch(err=>res.status(404).send(err.message));
+    
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const port=process.env.PORT || 3000;
 app.listen(port,()=>dbDebug(`Listening to port ${port}`));
